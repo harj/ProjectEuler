@@ -180,6 +180,27 @@ Find the difference between the sum of the squares of the first one hundred natu
 
 (define (diff-sumsquares-squaresum range)
   (- (square-sum range) (sum-squares range)))
+
+#| Problem 7
+By listing the first six prime numbers: 2, 3, 5, 7, 11, and 13, we can see that the 6th prime is 13.
+
+What is the 10 001st prime number?
+|#
+
+;Start with 2, check if next number is a prime, if YES then increment counter by 1 and check next, if NO then check next
+;When counter = 10001, return number
+
+(define (nth-prime n)
+  (define (iter count number prime)
+    (if (> count n)
+        prime
+        (cond ((prime? number)
+               (iter (+ count 1) (+ number 1) number))
+              (else
+               (iter count (+ number 1) prime)))))
+  (iter 1 2 2))
+              
+
     
   
 
