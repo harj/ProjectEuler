@@ -93,8 +93,52 @@ What is the largest prime factor of the number 600851475143?
   (if (prime? n)
       n
       (prime-factor-itr n 2)))
-                
 
-  
+#| Problem 4
+A palindromic number reads the same both ways. The largest palindrome made from the product of two 2-digit numbers is 9009 = 91 × 99.
+
+Find the largest palindrome made from the product of two 3-digit numbers.
+|#
+
+;Return digits of number in a list
+
+(define (strip-last-digit n)
+  (if (< n 10)
+      n
+      (- (/ n 10) (/ (remainder n 10) 10))))
+
+(define (reversed-number-to-list n)
+  (if (= (strip-last-digit n) n)
+      (list n)
+      (cons (remainder n 10) (reversed-number-to-list (strip-last-digit n)))))
+
+
+(define (reverse-list l)
+  (define (iter list reversed)
+    (if (null? list)
+      reversed
+      (iter (cdr list) (cons (car list) reversed))))
+  (iter l '()))
+
+(define (palindrome? n)
+  (equal? (reversed-number-to-list n) (reverse-list (reversed-number-to-list n))))
+
+;Set a=100 b=1000
+(define (largest-palindrome a b)
+  (let* ((range1 (range a b))
+         (range2 (range a b))
+         (products (apply append
+                          (map (lambda (x)
+                                 (map (lambda (y)
+                                        (* x y))
+                                      range2))
+                               range1))))
+    (define (largest-pali list result)
+      (cond ((null? list) result)
+            ((and (palindrome? (car list)) (> (car list) result))
+             (largest-pali (cdr list) (car list)))
+            (else (largest-pali (cdr list) result))))
+    (largest-pali products 0)))
+    
 
 
