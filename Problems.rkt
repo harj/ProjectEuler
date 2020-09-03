@@ -135,6 +135,24 @@ Find the largest palindrome made from the product of two 3-digit numbers.
             (else
              (largest-pali (cdr ab) result))))
     (largest-pali products 0)))
-    
 
+#| Problem 5
+2520 is the smallest number that can be divided by each of the numbers from 1 to 10 without any remainder.
+
+What is the smallest positive number that is evenly divisible by all of the numbers from 1 to 20?
+|#
+
+(define (divide-by-all-numbers number range)
+  (if (null? range)
+      true
+      (cond ((divides? number (car range))
+             (divide-by-all-numbers number (cdr range)))
+            (else
+             false))))
+
+(define (smallest-number test)
+  (let ((numbers '(11 13 14 16 17 18 19 20)))
+    (if (divide-by-all-numbers test numbers)
+        test
+        (smallest-number (+ test 20)))))
 
