@@ -156,3 +156,32 @@ What is the smallest positive number that is evenly divisible by all of the numb
         test
         (smallest-number (+ test 20)))))
 
+#| Problem 6
+The sum of the squares of the first ten natural numbers is 385.
+The square of the sum of the first ten natural numbers is 3025.
+
+Hence the difference between the sum of the squares of the first ten natural numbers and the square of the sum is 2640.
+
+Find the difference between the sum of the squares of the first one hundred natural numbers and the square of the sum.
+|#
+
+(define (square x) (* x x))
+
+(define (sum-squares range)
+  (apply
+   +
+   (map (lambda (x)
+          (square x))
+        range)))
+
+(define (square-sum range)
+  (square
+   (apply + range)))
+
+(define (diff-sumsquares-squaresum range)
+  (- (square-sum range) (sum-squares range)))
+    
+  
+
+
+
