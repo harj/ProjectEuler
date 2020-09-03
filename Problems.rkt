@@ -83,7 +83,9 @@ What is the largest prime factor of the number 600851475143?
   (factor-itr n 2))
 
 (define (prime? n)
-  (= (largest-factor n) 1))
+  (if (= n 1)
+      false
+      (= (largest-factor n) 1)))
 
 (define (largest-prime-factor n)
   (define (prime-factor-itr n test)
@@ -192,13 +194,13 @@ What is the 10 001st prime number?
 
 (define (nth-prime n)
   (define (iter count number prime)
-    (if (> count n)
+    (if (>= count n)
         prime
         (cond ((prime? number)
                (iter (+ count 1) (+ number 1) number))
               (else
                (iter count (+ number 1) prime)))))
-  (iter 1 2 2))
+  (iter 0 0 0))
               
 
     
