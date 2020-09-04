@@ -1,5 +1,5 @@
 #lang racket/load
-;(require trace)
+(require trace)
 
 #| Problem 1
 If we list all the natural numbers below 10 that are multiples of 3 or 5, we get 3, 5, 6 and 9. The sum of these multiples is 23.
@@ -188,9 +188,6 @@ By listing the first six prime numbers: 2, 3, 5, 7, 11, and 13, we can see that 
 
 What is the 10 001st prime number?
 |#
-
-;Start with 2, check if next number is a prime, if YES then increment counter by 1 and check next, if NO then check next
-;When counter = 10001, return number
 
 (define (nth-prime n)
   (define (iter count number prime)
