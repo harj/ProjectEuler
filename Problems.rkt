@@ -268,7 +268,6 @@ Find the sum of all the primes below two million.
 (define (multiple? n d)
   (and (= 0 (remainder n d)) (not (equal? n d))))
 
-;Prime check algorithm from Problem 7 overview
 (define (fast-prime-check n)
   (define (itr f)
     (cond ((> f (floor (sqrt n))) true)
@@ -292,5 +291,48 @@ Find the sum of all the primes below two million.
           (else (iter (+ current 1) sum))))
   (iter 1 0))
            
+;Faster version using Sieve of Eratosthenes: https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
 
+;Not strictly functional solution as using mutable data structure
+(define (remove-multiples! v n)
+  (define (iter i)
+    (if (< i (vector-length v))
+      (begin (vector-set! v i null)
+             (iter (+ i n)))
+      null))
+  (iter (* 2 n)))
+
+(define (next-num v n)
+  (let ((n (+ n 1)))
+    (if (< n (vector-length v))
+      (if (null? (vector-ref v n))
+          (next-num v n)
+          n)
+      null)))
+
+(define (sieve m)
+  (let* ((v (list->vector (range m))))
+    (vector-set! v 0 null)
+    (vector-set! v 1 null)
+    (define (iter! p)
+      (if (and (not (null? p)) (< p (vector-length v)))
+          (begin (remove-multiples! v p)
+                 (iter! (next-num v p)))
+          null))
+    (iter! 2)
+    v))
+
+(define (sum-primes-sieve m)
+  (apply
+   +
+   (vector->list
+    (vector-filter
+     (lambda (x)
+       (not (null? x)))
+     (sieve m)))))
+
+     
+;Create mutable array of range 0 to n
+;Access ith element, set first element to nil,        
+;Then at the very end filter array
 
