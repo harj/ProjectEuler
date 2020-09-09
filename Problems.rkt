@@ -231,3 +231,40 @@ Find the thirteen adjacent digits in the 1000-digit number that have the greates
                (iter (cdr digits) adjacent-product))
               (else (iter (cdr digits) max)))))
     (iter numlist 0)))
+
+#| Problem 9
+
+A Pythagorean triplet is a set of three natural numbers, a < b < c, for which,
+
+a^2 + b^2 = c^2
+For example, 32 + 42 = 9 + 16 = 25 = 5^2.
+
+There exists exactly one Pythagorean triplet for which a + b + c = 1000.
+Find the product abc.
+
+|#
+
+(define (euclid-triplets n m)
+  (if (> n m)
+      (print "Error, n is great than m")
+      (list (- (square m) (square n)) (* 2 m n) (+ (square m) (square n)))))
+
+(define (sum-triplets abc)
+  (sum-list abc))
+
+(define (product-triplets abc)
+  (apply * abc))
+
+(define (find-sum-triplets total)
+  (define (itr n m)
+    (cond ((= total (sum-triplets (euclid-triplets n m)))
+           (list (product-triplets (euclid-triplets n m)) (euclid-triplets n m)))
+          ((> (sum-triplets (euclid-triplets n m)) total)
+           (itr (+ 1 n) (+ 2 n)))
+          (else (itr n (+ 1 m)))))
+  (itr 1 2))
+
+        
+  
+      
+
