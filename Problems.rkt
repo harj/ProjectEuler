@@ -63,12 +63,6 @@ The prime factors of 13195 are 5, 7, 13 and 29.
 What is the largest prime factor of the number 600851475143?
 |#
 
-; Divide n by 2.
-  ;If it divides, check if result is prime.
-   ;If result is prime then return it
-   ;If not prime, divide it by 2.
-  ;If it doesn't divide, divide by the next prime
-
 (define (divides? n divisor)
   (= 0 (remainder n divisor)))
 
@@ -241,7 +235,6 @@ For example, 32 + 42 = 9 + 16 = 25 = 5^2.
 
 There exists exactly one Pythagorean triplet for which a + b + c = 1000.
 Find the product abc.
-
 |#
 
 (define (euclid-triplets n m)
@@ -264,7 +257,40 @@ Find the product abc.
           (else (itr n (+ 1 m)))))
   (itr 1 2))
 
-        
-  
-      
+#| Problem 10
+
+The sum of the primes below 10 is 2 + 3 + 5 + 7 = 17.
+
+Find the sum of all the primes below two million.
+|#
+
+;Brute force with fast prime check
+(define (multiple? n d)
+  (and (= 0 (remainder n d)) (not (equal? n d))))
+
+;Prime check algorithm from Problem 7 overview
+(define (fast-prime-check n)
+  (define (itr f)
+    (cond ((> f (floor (sqrt n))) true)
+          ((divisible n f) false)
+          ((divisible n (+ f 2)) false)
+          (else (itr (+ f 6)))))
+
+    (cond ((= n 1) false)
+          ((< n 4) true)
+          ((divisible n 2) false)
+          ((< n 9) true)
+          ((divisible n 3) false)
+          (else (itr 5))))
+
+(define (sum-primes n)
+  (define (iter current sum)
+    (cond ((>= current n)
+           sum)
+          ((fast-prime-check current)
+           (iter (+ current 1) (+ sum current)))
+          (else (iter (+ current 1) sum))))
+  (iter 1 0))
+           
+
 
