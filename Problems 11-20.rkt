@@ -1,5 +1,5 @@
 #lang racket/load
-(require trace)
+;(require trace)
 
 #| Problem 11
 In the 20×20 grid below, four numbers along a diagonal line have been marked in red.
@@ -453,3 +453,92 @@ What is the sum of the digits of the number 2^1000?
   (apply
    +
    (n-to-digits (expt base exp))))
+
+#| Problem 17
+If the numbers 1 to 5 are written out in words: one, two, three, four, five, then there are 3 + 3 + 5 + 4 + 4 = 19 letters used in total.
+
+If all the numbers from 1 to 1000 (one thousand) inclusive were written out in words, how many letters would be used?
+
+NOTE: Do not count spaces or hyphens. For example, 342 (three hundred and forty-two) contains 23 letters and 115 (one hundred and fifteen) contains 20 letters. The use of "and" when writing out numbers is in compliance with British usage.
+|#
+
+(define (sum-vector v)
+  (define (iter count total)
+    (if (= count (vector-length v))
+        total
+        (iter (+ count 1) (+ total (vector-ref v count)))))
+  (iter 0 0))
+
+;Make vector with letter count for the number of each position 
+(define letter-count
+  (let ((letters (make-vector 1001 0)))
+
+    ;Manually set letter count for 1 - 19 and tens as there is no pattern
+    (vector-set! letters 0 0)
+    (vector-set! letters 1 3)
+    (vector-set! letters 2 3)
+    (vector-set! letters 3 5)
+    (vector-set! letters 4 4)
+    (vector-set! letters 5 4)
+    (vector-set! letters 6 3)
+    (vector-set! letters 7 5)
+    (vector-set! letters 8 5)
+    (vector-set! letters 9 4)
+    (vector-set! letters 10 3)
+    (vector-set! letters 11 6)
+    (vector-set! letters 12 6)
+    (vector-set! letters 13 8)
+    (vector-set! letters 14 8)
+    (vector-set! letters 15 7)
+    (vector-set! letters 16 7)
+    (vector-set! letters 17 9)
+    (vector-set! letters 18 8)
+    (vector-set! letters 19 8)
+
+    ;Manually set letter count for the tens after 20, we can calculate letter count for numbers in between
+    (vector-set! letters 20 6)
+    (vector-set! letters 30 6)
+    (vector-set! letters 40 5)
+    (vector-set! letters 50 5)
+    (vector-set! letters 60 5)
+    (vector-set! letters 70 7)
+    (vector-set! letters 80 6)
+    (vector-set! letters 90 6)
+
+    ;Manually set letter count for one thousand, the hundreds we can calculate too
+    (vector-set! letters 1000 11)
+    letters))
+
+
+(define (sums-letters v)
+  (let* (;Set hundred, hundred and, one thousand letter counts manually
+         (hundred 7)
+         (hundred-and 10)
+         (one-thousand (vector-ref v 1000))
+
+         ;Create smaller vectors for numbers in these ranges
+         (letters-1-9 (vector-copy v 1 10))
+         (letters-10-19 (vector-copy v 10 20))
+         (letters-20-tens (vector-copy v 20 100))
+
+         ;Sum the manually set letter counts
+         (sum-1-9 (sum-vector letters-1-9))
+         (sum-10-19 (sum-vector letters-10-19))
+         (sum-letters-20-tens (sum-vector letters-20-tens))
+
+         ;For numbers 20 to 99, each number is a prefix (e.g. twenty, thirty) which each appear ten times and the unit number which appears 8 times (for each ten between 20 and 99)
+         (sum-20-99 (+ (* 10 sum-letters-20-tens)
+                       (* 8 sum-1-9)))
+         
+         (sum-1-99 (+ sum-1-9
+                      sum-10-19
+                      sum-20-99))
+
+         ;For the numbers 100 to 999 similar pattern. Each 1-9 number appears 100 times, so times the sum of those by 100. Then numbers 1-99 appear 9 times for each hundred. Then "hundred" appears 9 times for the start of a new hundred set, then "hundred and" appears 99 times for each hundred, and there are 9 hundreds.
+         (sum-100-999 (+ (* sum-1-9 100)
+                         (* sum-1-99 9)
+                         (* hundred 9)
+                         (* hundred-and 9 99))))
+       (+ sum-1-99
+          sum-100-999
+          one-thousand)))
