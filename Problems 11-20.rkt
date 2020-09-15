@@ -542,3 +542,104 @@ NOTE: Do not count spaces or hyphens. For example, 342 (three hundred and forty-
        (+ sum-1-99
           sum-100-999
           one-thousand)))
+
+#| Problem 18
+By starting at the top of the triangle below and moving to adjacent numbers on the row below, the maximum total from top to bottom is 23.
+
+3
+7 4
+2 4 6
+8 5 9 3
+
+That is, 3 + 7 + 4 + 9 = 23.
+
+Find the maximum total from top to bottom of the triangle below:
+
+75
+95 64
+17 47 82
+18 35 87 10
+20 04 82 47 65
+19 01 23 75 03 34
+88 02 77 73 07 63 67
+99 65 04 28 06 16 70 92
+41 41 26 56 83 40 80 70 33
+41 48 72 33 47 32 37 16 94 29
+53 71 44 65 25 43 91 52 97 51 14
+70 11 33 28 77 73 17 78 39 68 17 57
+91 71 52 38 17 14 91 43 58 50 27 29 48
+63 66 04 68 89 53 67 30 73 16 69 87 40 31
+04 62 98 27 23 09 70 98 73 93 38 53 60 04 23
+
+NOTE: As there are only 16384 routes, it is possible to solve this problem by trying every route. However, Problem 67, is the same challenge with a triangle containing one-hundred rows; it cannot be solved by brute force, and requires a clever method! ;o)
+|#
+
+(define triangle
+  (list->vector
+   (list
+    (list->vector '(75))
+    (list->vector '(95 64))
+    (list->vector '(17 47 82))
+    (list->vector '(18 35 87 10))
+    (list->vector '(20 04 82 47 65))
+    (list->vector '(19 01 23 75 03 34))
+    (list->vector '(88 02 77 73 07 63 67))
+    (list->vector '(99 65 04 28 06 16 70 92))
+    (list->vector '(41 41 26 56 83 40 80 70 33))
+    (list->vector '(41 48 72 33 47 32 37 16 94 29))
+    (list->vector '(53 71 44 65 25 43 91 52 97 51 14))
+    (list->vector '(70 11 33 28 77 73 17 78 39 68 17 57))
+    (list->vector '(91 71 52 38 17 14 91 43 58 50 27 29 48))
+    (list->vector '(63 66 04 68 89 53 67 30 73 16 69 87 40 31))
+    (list->vector '(04 62 98 27 23 09 70 98 73 93 38 53 60 04 23)))))
+
+(define (get-n row col)
+  (vector-ref (vector-ref triangle row) col)) 
+  
+(define (adj-below row col)
+  (cons
+   (get-n (+ row 1) col)  
+   (get-n (+ row 1) (+ col 1))))
+
+(define (max-n row col)
+  (let ((apex (get-n row col))
+        (side1 (car (adj-below row col)))
+        (side2 (cdr (adj-below row col))))
+  (if (> (+ apex side1) (+ apex side2))
+      (+ apex side1)
+      (+ apex side2))))
+
+(define (max-rows base-row)
+  (let ((triangle-copy (vector-copy triangle)))    
+    (define (max-row row)
+      (define (iter count)
+        (if (= count (vector-length (vector-ref triangle-copy row)))
+            (vector-ref triangle-copy row)
+            (begin
+              (vector-set! (vector-ref triangle-copy row) count (max-n row count))
+              (iter (+ count 1)))))
+      (iter 0))
+
+    (if (= base-row 0)
+        (vector-ref (vector-ref triangle-copy 0) 0)
+        (begin
+          (max-row (- base-row 1))
+          (max-rows (- base-row 1))))))
+
+#| Problem 20
+
+n! means n × (n - 1) × ... × 3 × 2 × 1
+
+For example, 10! = 10 × 9 × ... × 3 × 2 × 1 = 3628800,
+and the sum of the digits in the number 10! is 3 + 6 + 2 + 8 + 8 + 0 + 0 = 27.
+
+Find the sum of the digits in the number 100!
+|#
+
+(define (sum-factorial n)
+  (apply + (n-to-digits (factorial n))))  
+          
+
+   
+   
+     
