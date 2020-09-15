@@ -626,6 +626,68 @@ NOTE: As there are only 16384 routes, it is possible to solve this problem by tr
           (max-row (- base-row 1))
           (max-rows (- base-row 1))))))
 
+#| Problem 19
+You are given the following information, but you may prefer to do some research for yourself.
+
+1 Jan 1900 was a Monday.
+Thirty days has September,
+April, June and November.
+All the rest have thirty-one,
+Saving February alone,
+Which has twenty-eight, rain or shine.
+And on leap years, twenty-nine.
+A leap year occurs on any year evenly divisible by 4, but not on a century unless it is divisible by 400.
+
+How many Sundays fell on the first of the month during the twentieth century (1 Jan 1901 to 31 Dec 2000)?
+|#
+
+(define days
+  (list->vector
+   '(Sunday Monday Tuesday Wednesday Thursday Friday Saturday)))
+  
+(define (next-n-days day n)
+  (if (> (+ day n) 6)
+      (- (+ day n) 7)
+      (+ day n)))
+
+(define (first-next-month first days)
+  (let ((next-days (remainder days 7)))
+    (next-n-days first next-days)))
+
+(define (next-first-sunday? first days)
+  (if (= (first-next-month first days) 0)
+      1
+      0))
+
+(define (leap-year? year)
+  (cond ((= (remainder year 100) 0)
+         (if (= (remainder year 400) 0)
+             #t
+             #f))
+        ((= (remainder year 4) 0)
+         #t)
+        (else
+         #f)))
+         
+(define (month-days month year)
+  (cond ((member month '(4 6 9 11)) 30) ;Thirty days has September, April, June and November.
+        ((and (leap-year? year) (= month 2)) 29) ;Leap Year February
+        ((= month 2) 28) ;Regular February
+        (else 31))) ;All the rest have thirty-one,
+
+(define (first-sundays first-day year)
+  (define (iter first month total)
+    (if (> month 12)
+        (cons total first) ;Return total sundays in that year and the first day of next year
+        (iter (first-next-month first (month-days month year)) (+ month 1) (+ total (next-first-sunday? first (month-days month year))))))
+  (iter first-day 1 0))
+          
+
+(define (total-first-sundays first-day start-year end-year)
+  (if (> start-year end-year)
+      (* -1 (car (first-sundays first-day start-year))) ;Hack for not including Sundays in 1900
+      (+ (car (first-sundays first-day start-year)) (total-first-sundays (cdr (first-sundays first-day start-year)) (+ start-year 1) end-year))))
+
 #| Problem 20
 
 n! means n × (n - 1) × ... × 3 × 2 × 1
