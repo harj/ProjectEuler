@@ -1,4 +1,6 @@
 #lang racket/load
+(require reprovide/require-transformer/glob-in)
+(require (glob-in "*.rkt"))
 ;(require trace)
 
 #| Problem 11
