@@ -142,11 +142,13 @@ What is the millionth lexicographic permutation of the digits 0, 1, 2, 3, 4, 5, 
 (define digits
   (list->vector '(0 1 2 3 4 5 6 7 8 9)))
 
+;Compare value if pos i in digits with value of digit before it
 (define (compare permutation i)
   (if (= i 0)
       #f
       (> (vector-ref permutation i) (vector-ref permutation (- i 1)))))
- 
+
+;Find the start of longest not increasing suffix
 (define (largest-index permutation)
   (define (iter i index)
     (cond ((= (vector-length permutation) i)
@@ -157,11 +159,13 @@ What is the millionth lexicographic permutation of the digits 0, 1, 2, 3, 4, 5, 
            (iter (+ i 1) index))))
   (iter 0 0))
 
+;Set pivot to one value before start of suffix
 (define (pivot permutation)
   (if (= 0 (largest-index permutation))
       0
       (- (largest-index permutation) 1)))
 
+;Next next pivot is the right most smallest digit greater than pivot
 (define (pivot-successor permutation pivot)
   (define (iter j index)
     (cond ((= (vector-length permutation) j)
@@ -173,7 +177,8 @@ What is the millionth lexicographic permutation of the digits 0, 1, 2, 3, 4, 5, 
           (else
            (iter (+ j 1) index))))
   (iter (+ pivot 1) pivot))
-  
+
+;Swap two values in vector
 (define (swap permutation i j)
   (let ((i-value (vector-ref permutation i))
         (j-value (vector-ref permutation j)))
@@ -181,6 +186,7 @@ What is the millionth lexicographic permutation of the digits 0, 1, 2, 3, 4, 5, 
     (vector-set! permutation j i-value)
     permutation))
 
+;Reverse a vector and return it
 (define vector-reverse!
   (lambda (v)
     (let ((len (vector-length v)))
@@ -190,6 +196,7 @@ What is the millionth lexicographic permutation of the digits 0, 1, 2, 3, 4, 5, 
         (swap v left-index right-index))
       v)))
 
+;Swap the pivot and pivot succesor, then reverse the suffix to get next permutation
 (define (pivot-swap-reverse permutation)
   (let* ((pivot (pivot permutation))
          (pivot-successor (pivot-successor permutation pivot))
