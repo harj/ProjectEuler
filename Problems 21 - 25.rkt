@@ -12,23 +12,22 @@ For example, the proper divisors of 220 are 1, 2, 4, 5, 10, 11, 20, 22, 44, 55 a
 Evaluate the sum of all the amicable numbers under 10000.
 |#
 
-(define (divisors n)
-  (define (iter count)
-    (cond ((> count (floor (sqrt n)))
-           '(1))
-           ((= count (sqrt n))
-            (list (sqrt n) 1))
-           ((divides? n count)
-            (cons (list count (/ n count)) (iter (+ count 1))))
-           (else (iter (+ count 1)))))
-  (if (< n 4)
-      '(1)
-      (iter 2)))
-
+(define (proper-divisors n)
+  (let ((m (sqrt n)))
+    (define (iter i)
+      (cond
+        ((< m i) '())
+        ((divides? n i)
+         (if (or (= i m) (= i 1))
+             (cons i (iter (+ i 1)))
+             (cons i (cons (/ n i) (iter (+ i 1))))))
+        (else (iter (+ i 1)))))
+    (iter 1)))
+        
 (define (sum-divisors n)
   (apply
    +
-   (flatten (divisors n))))
+   (proper-divisors n)))
 
 (define (amicable-number? n)
   (let* ((d-a (sum-divisors n))
@@ -57,12 +56,15 @@ For example, when the list is sorted into alphabetical order, COLIN, which is wo
 What is the total of all the name scores in the file?
 |#
 
+#| Comment out because reading file messes with Racket trace
+
 (define names
   (list->vector
    (sort
     (map (lambda (x) (string-trim x "\""))
-	(string-split (file->string "p022_names.txt") ","))
+	(string-split (file->string "p022_names.txt") ",")) comment out because messes with Racket trace
    string<?)))
+|#
 
 (define (name->score name)
   (apply
@@ -88,29 +90,17 @@ Find the sum of all the positive integers which cannot be written as the sum of 
 
 ;Check if a number is abundant
 (define (abundant? n)
-  (if (< n 12)
-      #f
-      (> (sum-divisors n) n)))
-
-;Create list of abundant numbers up to a limit
-(define (abundant-numbers limit)
-  (define (iter count)
-    (if (= count limit)
-        '()
-        (cond ((abundant? count)
-               (cons count (iter (+ count 1))))
-              (else (iter (+ count 1))))))
-  (iter 0))
+  (< n (sum-divisors n)))
 
 ;Vector of abundant numbers up to 28123
-(define abundants
-  (list->vector (abundant-numbers 28123)))
-
-
-(define abundant-sums-vector
-  (make-vector 28124 0))
+;(define abundants
+;  (list->vector (filter abundant? (range 1 28123))))
 
 ;For abundant number with pos n in abundants vector, sum it with every other abundant in the vector and set the value of the pos with the sum in abundant-sums-vector to 1
+
+(define abundant-sums-vector
+  (make-vector 28125 0))
+
 (define (abundant-sums n)
   (define (iter count)
     (if (or (= count (vector-length abundants))
@@ -139,8 +129,80 @@ Find the sum of all the positive integers which cannot be written as the sum of 
         (else
          (not-abundant-sums (cdr range)))))
 
-;Run (apply + (not-abundant-sums (range 1 28123))) for answer
+;Run (apply + (not-abundant-sums (range 1 28123))) for answer - kinda hacky because it sets pos 28123 in abundant-sums-vector to 0 when should be 1, fix later
 
+#| Problem 24
+A permutation is an ordered arrangement of objects. For example, 3124 is one possible permutation of the digits 1, 2, 3 and 4. If all of the permutations are listed numerically or alphabetically, we call it lexicographic order. The lexicographic permutations of 0, 1 and 2 are:
+
+012   021   102   120   201   210
+
+What is the millionth lexicographic permutation of the digits 0, 1, 2, 3, 4, 5, 6, 7, 8 and 9?
+|#
+
+(define digits
+  (list->vector '(0 1 2 3 4 5 6 7 8 9)))
+
+(define (compare permutation i)
+  (if (= i 0)
+      #f
+      (> (vector-ref permutation i) (vector-ref permutation (- i 1)))))
+ 
+(define (largest-index permutation)
+  (define (iter i index)
+    (cond ((= (vector-length permutation) i)
+           index)
+          ((and (compare permutation i) (> i index))
+           (iter (+ i 1) i))
+          (else
+           (iter (+ i 1) index))))
+  (iter 0 0))
+
+(define (pivot permutation)
+  (if (= 0 (largest-index permutation))
+      0
+      (- (largest-index permutation) 1)))
+
+(define (pivot-successor permutation pivot)
+  (define (iter j index)
+    (cond ((= (vector-length permutation) j)
+           index)
+          ((and
+            (< (vector-ref permutation pivot) (vector-ref permutation j))
+            (< index j))
+           (iter (+ j 1) j))
+          (else
+           (iter (+ j 1) index))))
+  (iter (+ pivot 1) pivot))
+  
+(define (swap permutation i j)
+  (let ((i-value (vector-ref permutation i))
+        (j-value (vector-ref permutation j)))
+    (vector-set! permutation i j-value)
+    (vector-set! permutation j i-value)
+    permutation))
+
+(define vector-reverse!
+  (lambda (v)
+    (let ((len (vector-length v)))
+      (do ((left-index 0 (+ left-index 1))
+           (right-index (- len 1) (- right-index 1)))
+          ((<= right-index left-index))
+        (swap v left-index right-index))
+      v)))
+
+(define (pivot-swap-reverse permutation)
+  (let* ((pivot (pivot permutation))
+         (pivot-successor (pivot-successor permutation pivot))
+         (swapped-permutation (swap permutation pivot pivot-successor)))
+    (vector-append
+     (vector-take swapped-permutation (+ pivot 1))
+     (vector-reverse! (vector-drop swapped-permutation (+ pivot 1))))))
+
+(define (nth-permutation permutation n)
+  (if (= n 1)
+      permutation
+      (nth-permutation (pivot-swap-reverse permutation) (- n 1))))
+    
 #| Problem 25
 The Fibonacci sequence is defined by the recurrence relation:
 
